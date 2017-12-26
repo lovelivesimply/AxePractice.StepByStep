@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Reflection;
+using FluentNHibernate.Cfg;
+using FluentNHibernate.Cfg.Db;
 using NHibernate;
+using NHibernate.Context;
 using Xunit;
 
 namespace Orm.Practice
@@ -28,7 +32,7 @@ namespace Orm.Practice
          *   Server instance, this value should set as `true`.
          */
 
-        protected string ConnectionString { get; } = string.Empty;
+        protected string ConnectionString { get; } = "Data Source=(local);Initial Catalog=AdventureWorks2014;Integrated Security=True";
 
         #endregion
 
@@ -38,7 +42,7 @@ namespace Orm.Practice
 
             #region Please initialize the session object
 
-            throw new NotImplementedException();
+            session = sessionFactory.OpenSession();
 
             #endregion
         }
@@ -54,7 +58,15 @@ namespace Orm.Practice
              * `ISessionFactory` so `ISessionFactory` should be created first.
              */
 
-            throw new NotImplementedException();
+            var configuration =
+                MsSqlConfiguration.MsSql2012.ConnectionString(
+                    connectionString);
+            return Fluently.Configure()
+                .Database(configuration)
+                .Mappings(m =>
+                    m.FluentMappings.AddFromAssembly(Assembly.GetExecutingAssembly()))
+                .CurrentSessionContext<ThreadStaticSessionContext>()
+                .BuildSessionFactory();
 
             #endregion
         }
